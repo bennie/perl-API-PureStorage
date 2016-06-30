@@ -1,0 +1,11 @@
+Changes
+LICENSE
+MANIFEST
+META.json
+META.yml
+Makefile.PL
+build.pl
+config.txt
+lib/API/PureStorage.pm
+t/00-pod.t
+t/01-load.t
