@@ -64,7 +64,7 @@ sub new {
 
 sub DESTROY {
   my $self = shift @_;
-  my $ret = $self->{client}->DELETE("/api/$self->{api_version}/auth/session");
+  my $ret = $self->{client}->DELETE("/api/$self->{api_version}/auth/session") if defined $self->{api_version};
   unlink $self->{cookie_file};
 }
 
