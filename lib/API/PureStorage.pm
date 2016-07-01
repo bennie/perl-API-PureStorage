@@ -76,6 +76,13 @@ sub array_info {
     return wantarray ? @$ref : $ref;
 }
 
+sub volume_detail {
+    my $self = shift @_;
+    my $name = shift @_;
+    my $ref = $self->_api_get("/api/$self->{api_version}/volume/".$name);
+    return wantarray ? @$ref : $ref;
+}
+
 sub volume_info {
     my $self = shift @_;
     my $ref = $self->_api_get("/api/$self->{api_version}/volume?space=true");
@@ -138,6 +145,14 @@ API::PureStorage - Interacting with Pure Storage devices
 
   print "The array $host is currently $percent full\n";
 
+  print "\nVolumes on host $host:\n";
+
+  my $vol_info = $pure->volume_info();
+  for my $vol (sort { lc($a->{name}) cmp lc($b->{name}) } @$vol_info) {
+    my $detail = $pure->volume_detail($vol->{name});
+    print join("\t", $detail->{name}, $detail->{serial}, $detail->{created}), "\n";
+  }
+
 =head1 DESCRIPTION
 
 This module is a wrapper around the Pure Storage API for their devices.
@@ -185,8 +200,8 @@ NB: To calculate the percentage usage of whole array, divide total by capacity.
 
 =head2 volume_info()
 
-    my @volume_info = $pure->volume_info()
-    my $volume_info_ref = $pure->volume_info()
+    my @volume_info = $pure->volume_info();
+    my $volume_info_ref = $pure->volume_info();
 
 Returns an array or arrayref of general information about volumes include space
 usage.
@@ -217,10 +232,26 @@ Volume space usage info:
 
 NB: To calculate the percentage usage of the volume, divide total by size.
 
+=head2 volume_detail($volume_name)
+
+    my %volume_detail = $pure->volume_detail($volume_name);
+    my $volume_detail_ref = $pure->volume_detail($volume_name);
+
+Returns a hash or hasref (depending on requested context) of additional
+information on the volumes now shown in the vol_info() summary.
+
+=head3 Hash data reference:
+
+* created - A time stamp from when the volume was created
+* name - the name of the volume
+* serial - the serial number of the volume
+* size - Size of the volume in bytes
+* source - the source of this volume if it was cloned from a snapshot or other volume
+
 =head2 version()
 
-    my @versions = $pure->version()
-    my $versions_ref = $pure->version()
+    my @versions = $pure->version();
+    my $versions_ref = $pure->version();
 
 Returns an array/arrayref of API versions supported by the storage array.
 
